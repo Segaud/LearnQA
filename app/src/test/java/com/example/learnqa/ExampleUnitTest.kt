@@ -1,4 +1,4 @@
-package com.example.learnqa
+package com.segaud.learnqa
 
 import org.junit.Test
 

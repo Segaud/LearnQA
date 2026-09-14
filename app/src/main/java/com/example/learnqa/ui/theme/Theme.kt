@@ -1,4 +1,4 @@
-package com.example.learnqa.ui.theme
+package com.segaud.learnqa.ui.theme
 
 import android.app.Activity
 import android.os.Build

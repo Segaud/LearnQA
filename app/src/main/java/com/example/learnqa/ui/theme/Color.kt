@@ -1,4 +1,4 @@
-package com.example.learnqa.ui.theme
+package com.segaud.learnqa.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

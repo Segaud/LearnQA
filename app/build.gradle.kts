@@ -4,17 +4,17 @@ plugins {
 }
 
 android {
-    namespace = "com.example.learnqa"
+    namespace = "com.segaud.learnqa"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.example.learnqa"
-        minSdk = 29
+        applicationId = "com.segaud.learnqa"
+        minSdk = 26
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 1b
+        versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
