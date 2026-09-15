@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.segaud.learnqa.model.Exercise
 import com.segaud.learnqa.model.Lesson
+import androidx.compose.material3.LinearProgressIndicator
 
 @Composable
 fun LessonScreen(
@@ -27,11 +28,53 @@ fun LessonScreen(
     onBack: () -> Unit
 ) {
 
+    var currentExerciseIndex by rememberSaveable {
+    mutableStateOf(0)
+    }
+
     var selectedOptionId by rememberSaveable {
         mutableStateOf<String?>(null)
     }
 
-    val exercise = lesson.exercises.first()
+    var lessonComplete by rememberSaveable {
+        mutableStateOf(false)
+    }
+    
+    if (lessonComplete) {
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+
+            Text(
+                text = "Lesson complete!",
+                style = MaterialTheme.typography.headlineLarge
+            )
+
+            Text(
+                text = lesson.title,
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            Text(
+                text = "${lesson.exercises.size} exercises completed"
+            )
+
+            Button(
+                onClick = onBack,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Continue")
+            }
+        }
+
+        return
+    }
+
+    val exercise = lesson.exercises[currentExerciseIndex]
 
     Column(
         modifier = Modifier
@@ -50,9 +93,16 @@ fun LessonScreen(
             text = lesson.title,
             style = MaterialTheme.typography.headlineMedium
         )
+        
+        LinearProgressIndicator(
+            progress = {
+                (currentExerciseIndex + 1).toFloat() / lesson.exercises.size
+            }(),
+            modifier = Modifier.fillMaxWidth()
+        )
 
         Text(
-            text = "Exercise 1 of ${lesson.exercises.size}",
+            text = "Exercise ${currentExerciseIndex + 1} of ${lesson.exercises.size}",
             style = MaterialTheme.typography.labelLarge
         )
 
@@ -79,35 +129,61 @@ fun LessonScreen(
 
                 if (selectedOptionId != null) {
 
-                    val isCorrect =
-                        selectedOptionId == exercise.correctOptionId
+                val isCorrect =
+                    selectedOptionId == exercise.correctOptionId
 
-                    Card(
-                        modifier = Modifier.fillMaxWidth()
+                Card(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Column(
-                            modifier = Modifier.padding(20.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+
+                        Text(
+                            text = if (isCorrect) {
+                                "Correct!"
+                            } else {
+                                "Not quite."
+                            },
+                            style = MaterialTheme.typography.titleLarge
+                        )
+
+                        Text(
+                            text = if (isCorrect) {
+                                exercise.explanation
+                            } else {
+                                "Try comparing the actual behaviour with the requirement."
+                            }
+                        )
+
+                        Button(
+                            onClick = {
+
+                                if (currentExerciseIndex < lesson.exercises.lastIndex) {
+
+                                    currentExerciseIndex++
+                                    selectedOptionId = null
+
+                                } else {
+
+                                    lessonComplete = true
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp)
                         ) {
-
                             Text(
-                                text = if (isCorrect) {
-                                    "Correct!"
+                                if (currentExerciseIndex < lesson.exercises.lastIndex) {
+                                    "Continue"
                                 } else {
-                                    "Not quite."
-                                },
-                                style = MaterialTheme.typography.titleLarge
-                            )
-
-                            Text(
-                                text = if (isCorrect) {
-                                    exercise.explanation
-                                } else {
-                                    "Try comparing the actual behaviour with the requirement."
+                                    "Finish lesson"
                                 }
                             )
                         }
                     }
+                }
                 }
             }
         }
