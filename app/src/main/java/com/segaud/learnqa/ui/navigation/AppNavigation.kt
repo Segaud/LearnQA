@@ -9,6 +9,7 @@ import com.segaud.learnqa.ui.screens.LearnScreen
 import com.segaud.learnqa.ui.screens.LessonScreen
 import com.segaud.learnqa.ui.screens.ProgressScreen
 import com.segaud.learnqa.ui.screens.SettingsScreen
+import com.segaud.learnqa.data.SampleContent
 
 object Routes {
     const val LEARN = "learn"
@@ -45,7 +46,15 @@ fun AppNavigation(
         }
 
         composable(Routes.LESSON) {
+            val lesson = SampleContent
+                .qaFundamentals
+                .units
+                .first()
+                .lessons
+                .first()
+
             LessonScreen(
+                lesson = lesson,
                 onBack = {
                     navController.popBackStack()
                 }

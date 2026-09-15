@@ -18,15 +18,20 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.segaud.learnqa.model.Exercise
+import com.segaud.learnqa.model.Lesson
 
 @Composable
 fun LessonScreen(
+    lesson: Lesson,
     onBack: () -> Unit
 ) {
 
-    var answer by rememberSaveable {
-        mutableStateOf<Boolean?>(null)
+    var selectedOptionId by rememberSaveable {
+        mutableStateOf<String?>(null)
     }
+
+    val exercise = lesson.exercises.first()
 
     Column(
         modifier = Modifier
@@ -42,96 +47,66 @@ fun LessonScreen(
         }
 
         Text(
-            text = "What is software testing?",
+            text = lesson.title,
             style = MaterialTheme.typography.headlineMedium
         )
 
         Text(
-            text = "Exercise 1",
+            text = "Exercise 1 of ${lesson.exercises.size}",
             style = MaterialTheme.typography.labelLarge
         )
 
-        Card(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
+        when (exercise) {
+
+            is Exercise.MultipleChoice -> {
 
                 Text(
-                    text = "Requirement",
+                    text = exercise.prompt,
                     style = MaterialTheme.typography.titleMedium
                 )
 
-                Text(
-                    text = "A password must contain at least 8 characters."
-                )
+                exercise.options.forEach { option ->
 
-                Text(
-                    text = "The application accepts the password:"
-                )
+                    OutlinedButton(
+                        onClick = {
+                            selectedOptionId = option.id
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(option.text)
+                    }
+                }
 
-                Text(
-                    text = "abcdefg",
-                    style = MaterialTheme.typography.titleLarge
-                )
-            }
-        }
+                if (selectedOptionId != null) {
 
-        Text(
-            text = "Does the application meet the requirement?",
-            style = MaterialTheme.typography.titleMedium
-        )
+                    val isCorrect =
+                        selectedOptionId == exercise.correctOptionId
 
-        Button(
-            onClick = {
-                answer = true
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Yes")
-        }
+                    Card(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
 
-        OutlinedButton(
-            onClick = {
-                answer = false
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("No")
-        }
+                            Text(
+                                text = if (isCorrect) {
+                                    "Correct!"
+                                } else {
+                                    "Not quite."
+                                },
+                                style = MaterialTheme.typography.titleLarge
+                            )
 
-        if (answer != null) {
-
-            Card(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp)
-                ) {
-
-                    if (answer == false) {
-
-                        Text(
-                            text = "Correct!",
-                            style = MaterialTheme.typography.titleLarge
-                        )
-
-                        Text(
-                            text = "The password contains only 7 characters, but the requirement says it must contain at least 8."
-                        )
-
-                    } else {
-
-                        Text(
-                            text = "Not quite.",
-                            style = MaterialTheme.typography.titleLarge
-                        )
-
-                        Text(
-                            text = "Count the characters in \"abcdefg\" and compare that with the requirement."
-                        )
+                            Text(
+                                text = if (isCorrect) {
+                                    exercise.explanation
+                                } else {
+                                    "Try comparing the actual behaviour with the requirement."
+                                }
+                            )
+                        }
                     }
                 }
             }

@@ -17,5 +17,6 @@ data class LearningUnit(
 data class Lesson(
     val id: String,
     val title: String,
-    val description: String
+    val description: String,
+    val exercises: List<Exercise>
 )
