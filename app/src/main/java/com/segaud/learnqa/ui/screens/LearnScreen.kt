@@ -18,7 +18,10 @@ import androidx.compose.ui.unit.dp
 import com.segaud.learnqa.data.SampleContent
 
 @Composable
-fun LearnScreen() {
+fun LearnScreen(
+    onStartLesson: () -> Unit
+) {
+    
 
     val subject = SampleContent.qaFundamentals
     val firstUnit = subject.units.first()
@@ -99,9 +102,7 @@ fun LearnScreen() {
                 )
 
                 Button(
-                    onClick = {
-                        // Lesson navigation comes next.
-                    },
+                    onClick = onStartLesson,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Start lesson")
