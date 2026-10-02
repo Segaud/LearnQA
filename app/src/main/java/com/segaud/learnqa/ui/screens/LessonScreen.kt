@@ -21,10 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.segaud.learnqa.model.Exercise
 import com.segaud.learnqa.model.Lesson
+import androidx.compose.runtime.rememberCoroutineScope
+import com.segaud.learnqa.data.progress.ProgressRepository
+import kotlinx.coroutines.launch
 
 @Composable
 fun LessonScreen(
     lesson: Lesson,
+    progressRepository: ProgressRepository,
     onBack: () -> Unit
 ) {
 
@@ -88,6 +92,8 @@ fun LessonScreen(
 
         return
     }
+    
+    val coroutineScope = rememberCoroutineScope()
 
     val exercise = lesson.exercises[currentExerciseIndex]
 
@@ -195,7 +201,10 @@ fun LessonScreen(
 
                                     } else {
 
-                                        lessonComplete = true
+                                        coroutineScope.launch {
+                                        progressRepository.addXp(xpEarned)
+                                            lessonComplete = true
+                                        }
                                     }
                                 },
                                 modifier = Modifier

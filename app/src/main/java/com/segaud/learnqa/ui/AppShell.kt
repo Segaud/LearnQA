@@ -12,6 +12,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.segaud.learnqa.ui.navigation.AppNavigation
 import com.segaud.learnqa.ui.navigation.Routes
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import com.segaud.learnqa.data.progress.ProgressRepository
 
 @Composable
 fun AppShell() {
@@ -22,6 +25,12 @@ fun AppShell() {
     val currentRoute = backStackEntry?.destination?.route
 
     val showBottomBar = currentRoute != Routes.LESSON
+    
+    val context = LocalContext.current
+
+    val progressRepository = remember {
+        ProgressRepository(context.applicationContext)
+    }
 
     Scaffold(
         bottomBar = {
@@ -81,6 +90,7 @@ fun AppShell() {
 
         AppNavigation(
             navController = navController,
+            progressRepository = progressRepository,
             modifier = Modifier.padding(innerPadding)
         )
     }

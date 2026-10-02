@@ -10,6 +10,7 @@ import com.segaud.learnqa.ui.screens.LessonScreen
 import com.segaud.learnqa.ui.screens.ProgressScreen
 import com.segaud.learnqa.ui.screens.SettingsScreen
 import com.segaud.learnqa.data.SampleContent
+import com.segaud.learnqa.data.progress.ProgressRepository
 
 object Routes {
     const val LEARN = "learn"
@@ -21,6 +22,7 @@ object Routes {
 @Composable
 fun AppNavigation(
     navController: NavHostController,
+    progressRepository: ProgressRepository,
     modifier: Modifier = Modifier
 ) {
     NavHost(
@@ -38,7 +40,9 @@ fun AppNavigation(
         }
 
         composable(Routes.PROGRESS) {
-            ProgressScreen()
+            ProgressScreen(
+                progressRepository = ProgressRepository
+            )
         }
 
         composable(Routes.SETTINGS) {
@@ -46,19 +50,22 @@ fun AppNavigation(
         }
 
         composable(Routes.LESSON) {
-            val lesson = SampleContent
-                .qaFundamentals
-                .units
-                .first()
-                .lessons
-                .first()
 
-            LessonScreen(
-                lesson = lesson,
-                onBack = {
-                    navController.popBackStack()
-                }
-            )
+                val lesson = SampleContent
+                    .qaFundamentals
+                    .units
+                    .first()
+                    .lessons
+                    .first()
+
+                LessonScreen(
+                    lesson = lesson,
+                    progressRepository = progressRepository,
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
     }
 }
