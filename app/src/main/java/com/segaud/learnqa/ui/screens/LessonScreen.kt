@@ -15,14 +15,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.segaud.learnqa.data.progress.ProgressRepository
 import com.segaud.learnqa.model.Exercise
 import com.segaud.learnqa.model.Lesson
-import androidx.compose.runtime.rememberCoroutineScope
-import com.segaud.learnqa.data.progress.ProgressRepository
 import kotlinx.coroutines.launch
 
 @Composable
@@ -44,12 +44,19 @@ fun LessonScreen(
         mutableStateOf(0)
     }
 
+    var xpAwarded by rememberSaveable {
+        mutableStateOf<Int?>(null)
+    }
+
     var lessonComplete by rememberSaveable {
         mutableStateOf(false)
     }
 
+    val coroutineScope = rememberCoroutineScope()
+
     val xpEarned = correctAnswers * 20
 
+    // Lesson completion screen
     if (lessonComplete) {
 
         Column(
@@ -78,8 +85,16 @@ fun LessonScreen(
             )
 
             Text(
-                text = "+$xpEarned XP",
+                text = "Score: $xpEarned XP",
                 style = MaterialTheme.typography.headlineMedium
+            )
+
+            Text(
+                text = if ((xpAwarded ?: 0) > 0) {
+                    "+${xpAwarded ?: 0} XP added"
+                } else {
+                    "No additional XP earned"
+                }
             )
 
             Button(
@@ -92,11 +107,10 @@ fun LessonScreen(
 
         return
     }
-    
-    val coroutineScope = rememberCoroutineScope()
 
     val exercise = lesson.exercises[currentExerciseIndex]
 
+    // Main lesson screen
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -142,7 +156,7 @@ fun LessonScreen(
                     OutlinedButton(
                         onClick = {
 
-                            // Only the first answer counts
+                            // Only the first answer counts towards the score
                             if (selectedOptionId == null) {
 
                                 selectedOptionId = option.id
@@ -159,6 +173,7 @@ fun LessonScreen(
                     }
                 }
 
+                // Show feedback once an answer has been selected
                 if (selectedOptionId != null) {
 
                     val isCorrect =
@@ -189,20 +204,27 @@ fun LessonScreen(
                             Button(
                                 onClick = {
 
+                                    // Move to the next exercise
                                     if (
                                         currentExerciseIndex <
                                         lesson.exercises.lastIndex
                                     ) {
 
                                         currentExerciseIndex++
-
-                                        // Reset for the next question
                                         selectedOptionId = null
 
                                     } else {
 
+                                        // Final exercise:
+                                        // save the result before completing
                                         coroutineScope.launch {
-                                        progressRepository.addXp(xpEarned)
+
+                                            xpAwarded =
+                                                progressRepository.recordLessonResult(
+                                                    lessonId = lesson.id,
+                                                    xpEarned = xpEarned
+                                                )
+
                                             lessonComplete = true
                                         }
                                     }
