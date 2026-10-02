@@ -41,7 +41,7 @@ fun AppNavigation(
 
         composable(Routes.PROGRESS) {
             ProgressScreen(
-                progressRepository = ProgressRepository
+                progressRepository = progressRepository
             )
         }
 
@@ -51,21 +51,20 @@ fun AppNavigation(
 
         composable(Routes.LESSON) {
 
-                val lesson = SampleContent
-                    .qaFundamentals
-                    .units
-                    .first()
-                    .lessons
-                    .first()
+            val lesson = SampleContent
+                .qaFundamentals
+                .units
+                .first()
+                .lessons
+                .first()
 
-                LessonScreen(
-                    lesson = lesson,
-                    progressRepository = progressRepository,
-                    onBack = {
-                        navController.popBackStack()
-                    }
-                )
-            }
+            LessonScreen(
+                lesson = lesson,
+                progressRepository = progressRepository,
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }
