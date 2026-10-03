@@ -392,6 +392,107 @@ object SampleContent {
                                 explanation = "Useful defect reports contain reproducible evidence and context. Assigning blame is not part of describing the defect."
                             )
                         )
+                    ),
+                        
+                    Lesson(
+                        id = "investigating_defects",
+                        title = "Investigating unexpected behaviour",
+                        description = "Learn what evidence to gather before reporting a defect.",
+                        exercises = listOf(
+
+                            Exercise.MissingBugReportInfo(
+                                id = "missing_expected_result",
+                                prompt = """
+                                    Review this bug report.
+
+                                    Which important piece of information is missing?
+                                """.trimIndent(),
+                                report = BugReportOption(
+                                    id = "login_error_report",
+                                    title = "Login shows an error after entering valid credentials",
+                                    steps = """
+                                        1. Open the app
+                                        2. Enter a registered email address
+                                        3. Enter the correct password
+                                        4. Tap "Log in"
+                                    """.trimIndent(),
+                                    expected = "Not provided",
+                                    actual = "A 'Something went wrong' message appears and the user remains on the login screen."
+                                ),
+                                options = listOf(
+                                    AnswerOption(
+                                        id = "expected",
+                                        text = "The expected behaviour"
+                                    ),
+                                    AnswerOption(
+                                        id = "developer",
+                                        text = "The name of the developer who worked on login"
+                                    ),
+                                    AnswerOption(
+                                        id = "estimate",
+                                        text = "How long the fix should take"
+                                    )
+                                ),
+                                correctOptionId = "expected",
+                                explanation = "The report explains how to reproduce the problem and what actually happens, but it does not state what should happen instead."
+                            ),
+
+                            Exercise.MultipleChoice(
+                                id = "intermittent_failure",
+                                prompt = """
+                                    A tester sees a failure once but cannot immediately reproduce it.
+
+                                    What is the best next step?
+                                """.trimIndent(),
+                                options = listOf(
+                                    AnswerOption(
+                                        id = "ignore",
+                                        text = "Ignore it because it only happened once"
+                                    ),
+                                    AnswerOption(
+                                        id = "investigate",
+                                        text = "Try to reproduce it and gather information about the conditions"
+                                    ),
+                                    AnswerOption(
+                                        id = "report_certain",
+                                        text = "Report it immediately as a confirmed defect"
+                                    )
+                                ),
+                                correctOptionId = "investigate",
+                                explanation = "Intermittent behaviour should be investigated. Repeating the test and recording the conditions can help identify when and why the failure occurs."
+                            ),
+
+                            Exercise.MultiSelect(
+                                id = "useful_investigation_evidence",
+                                prompt = """
+                                    Which information could help investigate an unexpected failure?
+                                """.trimIndent(),
+                                options = listOf(
+                                    AnswerOption(
+                                        id = "device",
+                                        text = "Device, operating system or browser version"
+                                    ),
+                                    AnswerOption(
+                                        id = "logs",
+                                        text = "Relevant logs or error messages"
+                                    ),
+                                    AnswerOption(
+                                        id = "recording",
+                                        text = "A screenshot or screen recording"
+                                    ),
+                                    AnswerOption(
+                                        id = "guess",
+                                        text = "A guess about which developer caused it"
+                                    )
+                                ),
+                                correctOptionIds = setOf(
+                                    "device",
+                                    "logs",
+                                    "recording"
+                                ),
+                                explanation = "Environment details, logs and visual evidence can all help reproduce and diagnose a failure. Guessing who caused it does not provide useful evidence."
+                            )
+                        )
                     )
                 )
             )

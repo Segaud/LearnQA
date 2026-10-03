@@ -13,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.segaud.learnqa.model.Exercise
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material3.ButtonDefaults
 
 @Composable
 fun MissingBugReportInfoExercise(
@@ -69,14 +71,39 @@ fun MissingBugReportInfoExercise(
 
     exercise.options.forEach { option ->
 
+        val isSelected =
+            selectedOptionId == option.id
+
         OutlinedButton(
             onClick = {
                 onOptionSelected(option.id)
             },
             enabled = !answerSubmitted,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            border = BorderStroke(
+                width = if (isSelected) 2.dp else 1.dp,
+                color = if (isSelected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.outline
+                }
+            ),
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = if (isSelected) {
+                    MaterialTheme.colorScheme.primaryContainer
+                } else {
+                    MaterialTheme.colorScheme.surface
+                }
+            )
         ) {
-            Text(option.text)
+
+            Text(
+                text = if (isSelected) {
+                    "✓ ${option.text}"
+                } else {
+                    option.text
+                }
+            )
         }
     }
 
