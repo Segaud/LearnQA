@@ -40,7 +40,7 @@ fun AppShell() {
                 NavigationBar {
 
                     NavigationBarItem(
-                        selected = currentRoute == Routes.LEARN,
+                        selected = currentRoute == Routes.LEARN || currentRoute == Routes.UNIT,
                         onClick = {
                             navController.navigate(Routes.LEARN) {
                                 launchSingleTop = true

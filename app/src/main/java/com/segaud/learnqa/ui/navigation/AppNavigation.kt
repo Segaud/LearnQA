@@ -13,6 +13,7 @@ import com.segaud.learnqa.ui.screens.LearnScreen
 import com.segaud.learnqa.ui.screens.LessonScreen
 import com.segaud.learnqa.ui.screens.ProgressScreen
 import com.segaud.learnqa.ui.screens.SettingsScreen
+import com.segaud.learnqa.ui.screens.UnitLessonsScreen
 
 object Routes {
 
@@ -20,7 +21,12 @@ object Routes {
     const val PROGRESS = "progress"
     const val SETTINGS = "settings"
 
+    const val UNIT = "unit/{unitId}"
     const val LESSON = "lesson/{lessonId}"
+
+    fun unit(unitId: String): String {
+        return "unit/$unitId"
+    }
 
     fun lesson(lessonId: String): String {
         return "lesson/$lessonId"
@@ -44,10 +50,10 @@ fun AppNavigation(
 
             LearnScreen(
                 progressRepository = progressRepository,
-                onStartLesson = { lessonId ->
+                onOpenUnit = { unitId ->
 
                     navController.navigate(
-                        Routes.lesson(lessonId)
+                        Routes.unit(unitId)
                     )
                 }
             )
