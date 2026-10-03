@@ -495,6 +495,103 @@ object SampleContent {
                         )
                     )
                 )
+            ),
+                
+            LearningUnit(
+                id = "test_design_basics",
+                title = "Unit 2 — Test Design Basics",
+                description = "Learn how testers turn requirements and risks into effective tests.",
+                lessons = listOf(
+
+                    Lesson(
+                        id = "test_conditions_and_cases",
+                        title = "Test conditions and test cases",
+                        description = "Learn how to decide what needs testing and turn it into a repeatable test.",
+                        exercises = listOf(
+
+                            Exercise.MultipleChoice(
+                                id = "test_condition_definition",
+                                prompt = """
+                                    Requirement:
+
+                                    A customer can reset their password using a registered email address.
+
+                                    Which is an example of a test condition?
+                                """.trimIndent(),
+                                options = listOf(
+                                    AnswerOption(
+                                        id = "condition",
+                                        text = "Password reset with a registered email address"
+                                    ),
+                                    AnswerOption(
+                                        id = "step",
+                                        text = "Tap the Reset Password button"
+                                    ),
+                                    AnswerOption(
+                                        id = "bug",
+                                        text = "Reset password is broken"
+                                    )
+                                ),
+                                correctOptionId = "condition",
+                                explanation = "A test condition identifies something that should be tested. Detailed actions belong in a test case."
+                            ),
+
+                            Exercise.MultiSelect(
+                                id = "test_case_contents",
+                                prompt = """
+                                    Which information can form part of a test case?
+                                """.trimIndent(),
+                                options = listOf(
+                                    AnswerOption(
+                                        id = "preconditions",
+                                        text = "Preconditions"
+                                    ),
+                                    AnswerOption(
+                                        id = "steps",
+                                        text = "Test steps"
+                                    ),
+                                    AnswerOption(
+                                        id = "expected",
+                                        text = "Expected result"
+                                    ),
+                                    AnswerOption(
+                                        id = "developer",
+                                        text = "The developer who wrote the feature"
+                                    )
+                                ),
+                                correctOptionIds = setOf(
+                                    "preconditions",
+                                    "steps",
+                                    "expected"
+                                ),
+                                explanation = "A test case commonly describes its setup, actions and expected outcome. The developer's identity is not part of the test itself."
+                            ),
+
+                            Exercise.MultipleChoice(
+                                id = "repeatable_test",
+                                prompt = """
+                                    Why should a test case be clear and repeatable?
+                                """.trimIndent(),
+                                options = listOf(
+                                    AnswerOption(
+                                        id = "same_result",
+                                        text = "So another tester can execute it consistently"
+                                    ),
+                                    AnswerOption(
+                                        id = "longer",
+                                        text = "So the test documentation is as long as possible"
+                                    ),
+                                    AnswerOption(
+                                        id = "avoid_exploration",
+                                        text = "So exploratory testing is never required"
+                                    )
+                                ),
+                                correctOptionId = "same_result",
+                                explanation = "A clear test case allows another person to understand the setup, actions and expected result and execute it consistently."
+                            )
+                        )
+                    )
+                )
             )
         )
     )
