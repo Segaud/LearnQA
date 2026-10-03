@@ -23,6 +23,7 @@ import com.segaud.learnqa.data.SampleContent
 import com.segaud.learnqa.data.progress.ProgressRepository
 import com.segaud.learnqa.model.LearningUnit
 import com.segaud.learnqa.model.Lesson
+import androidx.compose.material3.LinearProgressIndicator
 
 @Composable
 fun LearnScreen(
@@ -119,52 +120,125 @@ private fun UnitSection(
             .areLessonsCompleted(lessonIds)
             .collectAsState(initial = false)
 
-    Spacer(
-        modifier = Modifier.height(8.dp)
-    )
+    val completedLessons by
+        progressRepository
+            .completedLessonCount(lessonIds)
+            .collectAsState(initial = 0)
 
-    Text(
-        text = unit.title,
-        style = MaterialTheme.typography.titleLarge
-    )
+    val unitXp by
+        progressRepository
+            .lessonBestXpTotal(lessonIds)
+            .collectAsState(initial = 0)
 
-    Text(
-        text = unit.description,
-        style = MaterialTheme.typography.bodyMedium
-    )
+    val totalLessons =
+        unit.lessons.size
 
-    if (unitCompleted) {
+    val availableXp =
+        unit.lessons.sumOf { lesson ->
+            lesson.exercises.size * 20
+        }
 
-        Text(
-            text = "✓ Unit $unitNumber complete",
-            style = MaterialTheme.typography.titleSmall
-        )
+    val unitProgress =
+        if (totalLessons == 0) {
+            0f
+        } else {
+            completedLessons.toFloat() /
+                totalLessons
+        }
 
-    } else if (!unitUnlocked) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement =
+            Arrangement.spacedBy(12.dp)
+    ) {
 
-        Text(
-            text = "Complete the previous unit to unlock.",
-            style = MaterialTheme.typography.bodyMedium
-        )
-    }
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor =
+                    if (unitUnlocked) {
+                        MaterialTheme.colorScheme.primaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant
+                    }
+            )
+        ) {
 
-    unit.lessons.forEachIndexed { index, lesson ->
+            Column(
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement =
+                    Arrangement.spacedBy(10.dp)
+            ) {
 
-        val previousLessonId =
-            if (index == 0) {
-                null
-            } else {
-                unit.lessons[index - 1].id
+                Text(
+                    text = "UNIT $unitNumber",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Text(
+                    text = unit.title
+                        .substringAfter("—")
+                        .trim(),
+                    style = MaterialTheme.typography.headlineSmall
+                )
+
+                Text(
+                    text = unit.description,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                LinearProgressIndicator(
+                    progress = {
+                        unitProgress
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Text(
+                    text =
+                        "$completedLessons / $totalLessons lessons • " +
+                            "$unitXp / $availableXp XP",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                when {
+                    unitCompleted -> {
+                        Text(
+                            text = "✓ Unit complete",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
+                    !unitUnlocked -> {
+                        Text(
+                            text = "Complete the previous unit to unlock.",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
             }
+        }
 
-        LessonCard(
-            lesson = lesson,
-            lessonNumber = index + 1,
-            previousLessonId = previousLessonId,
-            unitUnlocked = unitUnlocked,
-            progressRepository = progressRepository,
-            onStartLesson = onStartLesson
-        )
+        unit.lessons.forEachIndexed { index, lesson ->
+
+            val previousLessonId =
+                if (index == 0) {
+                    null
+                } else {
+                    unit.lessons[index - 1].id
+                }
+
+            LessonCard(
+                lesson = lesson,
+                lessonNumber = index + 1,
+                previousLessonId = previousLessonId,
+                unitUnlocked = unitUnlocked,
+                progressRepository = progressRepository,
+                onStartLesson = onStartLesson
+            )
+        }
     }
 }
 
@@ -208,16 +282,37 @@ private fun LessonCard(
     val maxXp =
         lesson.exercises.size * 20
 
+    val cardColor =
+        when {
+            lessonCompleted ->
+                MaterialTheme.colorScheme.secondaryContainer
+
+            !isUnlocked ->
+                MaterialTheme.colorScheme.surfaceVariant
+
+            else ->
+                MaterialTheme.colorScheme.surface
+        }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = cardColor
+        ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
+            defaultElevation =
+                if (isUnlocked) {
+                    4.dp
+                } else {
+                    1.dp
+                }
         )
     ) {
 
         Column(
             modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement =
+                Arrangement.spacedBy(8.dp)
         ) {
 
             Text(
@@ -235,28 +330,42 @@ private fun LessonCard(
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            if (lessonCompleted) {
+            when {
 
-                Text(
-                    text = "✓ Completed",
-                    style = MaterialTheme.typography.titleSmall
-                )
+                lessonCompleted -> {
 
-                Text(
-                    text = "Best score: $bestXp / $maxXp XP",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                    Text(
+                        text = "✓ Completed",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
 
-            } else if (!isUnlocked) {
+                    Text(
+                        text = "Best score: $bestXp / $maxXp XP",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
 
-                Text(
-                    text = if (!unitUnlocked) {
-                        "Complete the previous unit to unlock."
-                    } else {
-                        "Complete the previous lesson to unlock."
-                    },
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                isUnlocked -> {
+
+                    Text(
+                        text = "Ready • Up to $maxXp XP",
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                }
+
+                else -> {
+
+                    Text(
+                        text =
+                            if (!unitUnlocked) {
+                                "Complete the previous unit to unlock."
+                            } else {
+                                "Complete the previous lesson to unlock."
+                            },
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
 
             Spacer(
