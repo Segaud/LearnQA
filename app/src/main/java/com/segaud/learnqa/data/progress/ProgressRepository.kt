@@ -85,4 +85,22 @@ class ProgressRepository(
 
         return xpAwarded
     }
+    
+    fun areLessonsCompleted(
+        lessonIds: List<String>
+    ): Flow<Boolean> {
+
+        return context.dataStore.data.map { preferences ->
+
+            lessonIds.all { lessonId ->
+
+                val completedKey =
+                    booleanPreferencesKey(
+                        "lesson_${lessonId}_completed"
+                    )
+
+                preferences[completedKey] ?: false
+            }
+        }
+    }
 }

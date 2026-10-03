@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.segaud.learnqa.data.SampleContent
 import com.segaud.learnqa.data.progress.ProgressRepository
+import com.segaud.learnqa.model.LearningUnit
 import com.segaud.learnqa.model.Lesson
 
 @Composable
@@ -30,7 +31,6 @@ fun LearnScreen(
 ) {
 
     val subject = SampleContent.qaFundamentals
-    val firstUnit = subject.units.first()
 
     Column(
         modifier = Modifier
@@ -62,33 +62,37 @@ fun LearnScreen(
             style = MaterialTheme.typography.bodyMedium
         )
 
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
+        subject.units.forEachIndexed { unitIndex, unit ->
 
-        Text(
-            text = firstUnit.title,
-            style = MaterialTheme.typography.titleLarge
-        )
-
-        Text(
-            text = firstUnit.description,
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        firstUnit.lessons.forEachIndexed { index, lesson ->
-
-            val previousLessonId =
-                if (index == 0) {
+            val previousUnit =
+                if (unitIndex == 0) {
                     null
                 } else {
-                    firstUnit.lessons[index - 1].id
+                    subject.units[unitIndex - 1]
                 }
 
-            LessonCard(
-                lesson = lesson,
-                lessonNumber = index + 1,
-                previousLessonId = previousLessonId,
+            val previousUnitCompleted =
+                if (previousUnit == null) {
+
+                    true
+
+                } else {
+
+                    val previousLessonIds =
+                        previousUnit.lessons.map { lesson ->
+                            lesson.id
+                        }
+
+                    progressRepository
+                        .areLessonsCompleted(previousLessonIds)
+                        .collectAsState(initial = false)
+                        .value
+                }
+
+            UnitSection(
+                unit = unit,
+                unitNumber = unitIndex + 1,
+                unitUnlocked = previousUnitCompleted,
                 progressRepository = progressRepository,
                 onStartLesson = onStartLesson
             )
@@ -97,10 +101,79 @@ fun LearnScreen(
 }
 
 @Composable
+private fun UnitSection(
+    unit: LearningUnit,
+    unitNumber: Int,
+    unitUnlocked: Boolean,
+    progressRepository: ProgressRepository,
+    onStartLesson: (String) -> Unit
+) {
+
+    val lessonIds =
+        unit.lessons.map { lesson ->
+            lesson.id
+        }
+
+    val unitCompleted by
+        progressRepository
+            .areLessonsCompleted(lessonIds)
+            .collectAsState(initial = false)
+
+    Spacer(
+        modifier = Modifier.height(8.dp)
+    )
+
+    Text(
+        text = unit.title,
+        style = MaterialTheme.typography.titleLarge
+    )
+
+    Text(
+        text = unit.description,
+        style = MaterialTheme.typography.bodyMedium
+    )
+
+    if (unitCompleted) {
+
+        Text(
+            text = "✓ Unit $unitNumber complete",
+            style = MaterialTheme.typography.titleSmall
+        )
+
+    } else if (!unitUnlocked) {
+
+        Text(
+            text = "Complete the previous unit to unlock.",
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+
+    unit.lessons.forEachIndexed { index, lesson ->
+
+        val previousLessonId =
+            if (index == 0) {
+                null
+            } else {
+                unit.lessons[index - 1].id
+            }
+
+        LessonCard(
+            lesson = lesson,
+            lessonNumber = index + 1,
+            previousLessonId = previousLessonId,
+            unitUnlocked = unitUnlocked,
+            progressRepository = progressRepository,
+            onStartLesson = onStartLesson
+        )
+    }
+}
+
+@Composable
 private fun LessonCard(
     lesson: Lesson,
     lessonNumber: Int,
     previousLessonId: String?,
+    unitUnlocked: Boolean,
     progressRepository: ProgressRepository,
     onStartLesson: (String) -> Unit
 ) {
@@ -129,7 +202,8 @@ private fun LessonCard(
         }
 
     val isUnlocked =
-        previousLessonCompleted || lessonCompleted
+        unitUnlocked &&
+            (previousLessonCompleted || lessonCompleted)
 
     val maxXp =
         lesson.exercises.size * 20
@@ -163,10 +237,6 @@ private fun LessonCard(
 
             if (lessonCompleted) {
 
-                Spacer(
-                    modifier = Modifier.height(4.dp)
-                )
-
                 Text(
                     text = "✓ Completed",
                     style = MaterialTheme.typography.titleSmall
@@ -179,12 +249,12 @@ private fun LessonCard(
 
             } else if (!isUnlocked) {
 
-                Spacer(
-                    modifier = Modifier.height(4.dp)
-                )
-
                 Text(
-                    text = "Complete the previous lesson to unlock.",
+                    text = if (!unitUnlocked) {
+                        "Complete the previous unit to unlock."
+                    } else {
+                        "Complete the previous lesson to unlock."
+                    },
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
