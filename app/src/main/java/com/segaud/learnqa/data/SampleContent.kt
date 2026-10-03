@@ -5,6 +5,7 @@ import com.segaud.learnqa.model.Exercise
 import com.segaud.learnqa.model.LearningUnit
 import com.segaud.learnqa.model.Lesson
 import com.segaud.learnqa.model.Subject
+import com.segaud.learnqa.model.BugReportOption
 
 object SampleContent {
 
@@ -282,6 +283,113 @@ object SampleContent {
                                     "report_defects"
                                 ),
                                 explanation = "Testing includes activities such as reviewing requirements, executing tests and reporting defects. Testing cannot guarantee that failures will never occur."
+                            )
+                        )
+                    ),
+                    
+                    Lesson(
+                        id = "writing_bug_reports",
+                        title = "Writing useful bug reports",
+                        description = "Learn how to communicate defects clearly enough for another person to reproduce them.",
+                        exercises = listOf(
+
+                            Exercise.MultipleChoice(
+                                id = "purpose_bug_report",
+                                prompt = """
+                                    What is the main purpose of a good bug report?
+                                """.trimIndent(),
+                                options = listOf(
+                                    AnswerOption(
+                                        id = "blame",
+                                        text = "Explain who caused the defect"
+                                    ),
+                                    AnswerOption(
+                                        id = "reproduce",
+                                        text = "Help someone understand and reproduce the problem"
+                                    ),
+                                    AnswerOption(
+                                        id = "prove_severity",
+                                        text = "Prove that the defect is high severity"
+                                    )
+                                ),
+                                correctOptionId = "reproduce",
+                                explanation = "A useful bug report communicates enough information for someone else to understand, investigate and reproduce the problem."
+                            ),
+
+                            Exercise.BugReportReview(
+                                id = "choose_bug_report",
+                                prompt = """
+                                    A user cannot complete checkout.
+
+                                    Which bug report would be most useful to a developer?
+                                """.trimIndent(),
+                                reports = listOf(
+
+                                    BugReportOption(
+                                        id = "report_a",
+                                        title = "Checkout broken",
+                                        steps = """
+                                            1. Add an item to the basket
+                                            2. Open checkout
+                                        """.trimIndent(),
+                                        expected = "It should work.",
+                                        actual = "It doesn't."
+                                    ),
+
+                                    BugReportOption(
+                                        id = "report_b",
+                                        title = "Checkout button does not respond after entering valid card details",
+                                        steps = """
+                                            1. Add an item to basket. 
+                                            2. Open checkout. 
+                                            3. Enter valid delivery and card details. 
+                                            4. Tap 'Pay now'.
+                                            """.trimIndent(),
+                                        expected = "Payment is submitted and an order confirmation is displayed.",
+                                        actual = "The Pay now button shows a loading indicator briefly, then returns to its normal state. No order is created."
+                                    ),
+
+                                    BugReportOption(
+                                        id = "report_c",
+                                        title = "Payment bug",
+                                        steps = "Customer reported a problem.",
+                                        expected = "No bugs.",
+                                        actual = "Payment issue."
+                                    )
+                                ),
+                                correctReportId = "report_b",
+                                explanation = "Report B gives a specific title, reproducible steps, expected behaviour and the actual behaviour observed."
+                            ),
+
+                            Exercise.MultiSelect(
+                                id = "useful_bug_fields",
+                                prompt = """
+                                    Which information is normally useful when reporting a reproducible defect?
+                                """.trimIndent(),
+                                options = listOf(
+                                    AnswerOption(
+                                        id = "steps",
+                                        text = "Steps to reproduce"
+                                    ),
+                                    AnswerOption(
+                                        id = "expected_actual",
+                                        text = "Expected and actual results"
+                                    ),
+                                    AnswerOption(
+                                        id = "environment",
+                                        text = "Relevant device, browser or environment information"
+                                    ),
+                                    AnswerOption(
+                                        id = "developer_blame",
+                                        text = "The name of the developer you think caused it"
+                                    )
+                                ),
+                                correctOptionIds = setOf(
+                                    "steps",
+                                    "expected_actual",
+                                    "environment"
+                                ),
+                                explanation = "Useful defect reports contain reproducible evidence and context. Assigning blame is not part of describing the defect."
                             )
                         )
                     )
