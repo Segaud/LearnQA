@@ -33,6 +33,7 @@ fun AppNavigation(
 
         composable(Routes.LEARN) {
             LearnScreen(
+                progressRepository = progressRepository,
                 onStartLesson = {
                     navController.navigate(Routes.LESSON)
                 }

@@ -16,9 +16,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.segaud.learnqa.data.SampleContent
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import com.segaud.learnqa.data.progress.ProgressRepository
 
 @Composable
 fun LearnScreen(
+    progressRepository: ProgressRepository,
     onStartLesson: () -> Unit
 ) {
     
@@ -26,6 +30,16 @@ fun LearnScreen(
     val subject = SampleContent.qaFundamentals
     val firstUnit = subject.units.first()
     val firstLesson = firstUnit.lessons.first()
+    
+    val lessonCompleted by
+        progressRepository
+            .isLessonCompleted(firstLesson.id)
+            .collectAsState(initial = false)
+
+    val bestXp by
+        progressRepository
+            .lessonBestXp(firstLesson.id)
+            .collectAsState(initial = 0)
 
     Column(
         modifier = Modifier
@@ -96,6 +110,23 @@ fun LearnScreen(
                     text = firstLesson.description,
                     style = MaterialTheme.typography.bodyMedium
                 )
+                
+                if (lessonCompleted) {
+
+                    Spacer(
+                        modifier = Modifier.height(12.dp)
+                    )
+
+                    Text(
+                        text = "✓ Completed",
+                        style = MaterialTheme.typography.titleSmall
+                    )
+
+                    Text(
+                        text = "Best score: $bestXp / 60 XP",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
 
                 Spacer(
                     modifier = Modifier.height(16.dp)
@@ -105,7 +136,13 @@ fun LearnScreen(
                     onClick = onStartLesson,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Start lesson")
+                    Text(
+                        if (lessonCompleted) {
+                            "Review lesson"
+                        } else {
+                            "Start lesson"
+                        }
+                    )
                 }
             }
         }

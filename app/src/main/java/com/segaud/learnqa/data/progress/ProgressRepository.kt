@@ -24,6 +24,30 @@ class ProgressRepository(
         context.dataStore.data.map { preferences ->
             preferences[Keys.TOTAL_XP] ?: 0
         }
+        
+    fun lessonBestXp(
+        lessonId: String
+    ): Flow<Int> {
+
+        val bestXpKey =
+            intPreferencesKey("lesson_${lessonId}_best_xp")
+
+        return context.dataStore.data.map { preferences ->
+            preferences[bestXpKey] ?: 0
+        }
+    }
+
+    fun isLessonCompleted(
+        lessonId: String
+    ): Flow<Boolean> {
+
+        val completedKey =
+            booleanPreferencesKey("lesson_${lessonId}_completed")
+
+        return context.dataStore.data.map { preferences ->
+            preferences[completedKey] ?: false
+        }
+    }
 
     suspend fun recordLessonResult(
         lessonId: String,
