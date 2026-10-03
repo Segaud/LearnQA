@@ -26,9 +26,10 @@ import com.segaud.learnqa.data.progress.ProgressRepository
 import com.segaud.learnqa.model.Exercise
 import com.segaud.learnqa.model.Lesson
 import kotlinx.coroutines.launch
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.CardDefaults
+import com.segaud.learnqa.ui.components.exercises.ExerciseFeedback
+import com.segaud.learnqa.ui.components.exercises.MultipleChoiceExercise
+import com.segaud.learnqa.ui.components.exercises.MultiSelectExercise
+import com.segaud.learnqa.ui.components.exercises.BugReportReviewExercise
 
 @Composable
 fun LessonScreen(
@@ -201,323 +202,100 @@ fun LessonScreen(
 
             is Exercise.MultipleChoice -> {
 
-                Text(
-                    text = exercise.prompt,
-                    style = MaterialTheme.typography.titleMedium
-                )
+                MultipleChoiceExercise(
+                    exercise = exercise,
+                    selectedOptionId = selectedOptionId,
+                    answerSubmitted = answerSubmitted,
+                    buttonText = continueButtonText,
+                    onOptionSelected = { optionId ->
 
-                exercise.options.forEach { option ->
+                        if (!answerSubmitted) {
 
-                    OutlinedButton(
-                        onClick = {
+                            selectedOptionId = optionId
+                            answerSubmitted = true
 
-                            if (!answerSubmitted) {
-
-                                selectedOptionId =
-                                    option.id
-
-                                answerSubmitted = true
-
-                                if (
-                                    option.id ==
-                                    exercise.correctOptionId
-                                ) {
-                                    correctAnswers++
-                                }
+                            if (
+                                optionId ==
+                                exercise.correctOptionId
+                            ) {
+                                correctAnswers++
                             }
-                        },
-                        enabled = !answerSubmitted,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(option.text)
-                    }
-                }
-
-                if (answerSubmitted) {
-
-                    val isCorrect =
-                        selectedOptionId ==
-                            exercise.correctOptionId
-
-                    ExerciseFeedback(
-                        isCorrect = isCorrect,
-                        explanation = exercise.explanation,
-                        buttonText = continueButtonText,
-                        onContinue = {
-                            advanceLesson()
                         }
-                    )
-                }
+                    },
+                    onContinue = {
+                        advanceLesson()
+                    }
+                )
             }
 
             is Exercise.MultiSelect -> {
 
-                Text(
-                    text = exercise.prompt,
-                    style = MaterialTheme.typography.titleMedium
-                )
+                MultiSelectExercise(
+                    exercise = exercise,
+                    selectedOptionIds = selectedOptionIds,
+                    answerSubmitted = answerSubmitted,
+                    buttonText = continueButtonText,
+                    onOptionToggle = { optionId ->
 
-                Text(
-                    text = "Select all that apply.",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                        if (!answerSubmitted) {
 
-                exercise.options.forEach { option ->
+                            selectedOptionIds =
+                                if (optionId in selectedOptionIds) {
 
-                    val isSelected =
-                        option.id in selectedOptionIds
+                                    selectedOptionIds - optionId
 
-                    OutlinedButton(
-                        onClick = {
+                                } else {
 
-                            if (!answerSubmitted) {
-
-                                selectedOptionIds =
-                                    if (isSelected) {
-
-                                        selectedOptionIds -
-                                            option.id
-
-                                    } else {
-
-                                        selectedOptionIds +
-                                            option.id
-                                    }
-                            }
-                        },
-                        enabled = !answerSubmitted,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-
-                        Text(
-                            text = if (isSelected) {
-                                "✓ ${option.text}"
-                            } else {
-                                option.text
-                            }
-                        )
-                    }
-                }
-
-                if (!answerSubmitted) {
-
-                    Button(
-                        onClick = {
-
-                            answerSubmitted = true
-
-                            val isCorrect =
-                                selectedOptionIds.toSet() ==
-                                    exercise.correctOptionIds
-
-                            if (isCorrect) {
-                                correctAnswers++
-                            }
-                        },
-                        enabled =
-                            selectedOptionIds.isNotEmpty(),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Check answer")
-                    }
-                }
-
-                if (answerSubmitted) {
-
-                    val isCorrect =
-                        selectedOptionIds.toSet() ==
-                            exercise.correctOptionIds
-
-                    ExerciseFeedback(
-                        isCorrect = isCorrect,
-                        explanation = exercise.explanation,
-                        buttonText = continueButtonText,
-                        onContinue = {
-                            advanceLesson()
+                                    selectedOptionIds + optionId
+                                }
                         }
-                    )
-                }
+                    },
+                    onSubmit = {
+
+                        answerSubmitted = true
+
+                        val isCorrect =
+                            selectedOptionIds.toSet() ==
+                                exercise.correctOptionIds
+
+                        if (isCorrect) {
+                            correctAnswers++
+                        }
+                    },
+                    onContinue = {
+                        advanceLesson()
+                    }
+                )
             }
             
             is Exercise.BugReportReview -> {
 
-                Text(
-                    text = exercise.prompt,
-                    style = MaterialTheme.typography.titleMedium
-                )
+                BugReportReviewExercise(
+                    exercise = exercise,
+                    selectedOptionId = selectedOptionId,
+                    answerSubmitted = answerSubmitted,
+                    buttonText = continueButtonText,
+                    onReportSelected = { reportId ->
 
-                Text(
-                    text = "Select the most useful bug report.",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
-                exercise.reports.forEach { report ->
-
-                    val isSelected =
-                        selectedOptionId == report.id
-
-                    OutlinedCard(
-                        onClick = {
-
-                            if (!answerSubmitted) {
-                                selectedOptionId = report.id
-                            }
-                        },
-                        enabled = !answerSubmitted,
-                        modifier = Modifier.fillMaxWidth(),
-                        border = BorderStroke(
-                            width = if (isSelected) 2.dp else 1.dp,
-                            color = if (isSelected) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.outlineVariant
-                            }
-                        ),
-                        colors = CardDefaults.outlinedCardColors(
-                            containerColor = if (isSelected) {
-                                MaterialTheme.colorScheme.primaryContainer
-                            } else {
-                                MaterialTheme.colorScheme.surface
-                            }
-                        )
-                    ) {
-
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-
-                            Text(
-                                text = report.title,
-                                style = MaterialTheme.typography.titleMedium
-                            )
-
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(2.dp)
-                            ) {
-
-                                Text(
-                                    text = "Steps",
-                                    style = MaterialTheme.typography.labelLarge
-                                )
-
-                                Text(
-                                    text = report.steps,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
-
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(2.dp)
-                            ) {
-
-                                Text(
-                                    text = "Expected",
-                                    style = MaterialTheme.typography.labelLarge
-                                )
-
-                                Text(
-                                    text = report.expected,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
-
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(2.dp)
-                            ) {
-
-                                Text(
-                                    text = "Actual",
-                                    style = MaterialTheme.typography.labelLarge
-                                )
-
-                                Text(
-                                    text = report.actual,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
+                        if (!answerSubmitted) {
+                            selectedOptionId = reportId
                         }
-                    }
-                }
+                    },
+                    onSubmit = {
 
-                if (!answerSubmitted) {
+                        answerSubmitted = true
 
-                    Button(
-                        onClick = {
-
-                            answerSubmitted = true
-
-                            if (
-                                selectedOptionId ==
-                                exercise.correctReportId
-                            ) {
-                                correctAnswers++
-                            }
-                        },
-                        enabled = selectedOptionId != null,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Check answer")
-                    }
-                }
-
-                if (answerSubmitted) {
-
-                    val isCorrect =
-                        selectedOptionId ==
+                        if (
+                            selectedOptionId ==
                             exercise.correctReportId
-
-                    ExerciseFeedback(
-                        isCorrect = isCorrect,
-                        explanation = exercise.explanation,
-                        buttonText = continueButtonText,
-                        onContinue = {
-                            advanceLesson()
+                        ) {
+                            correctAnswers++
                         }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ExerciseFeedback(
-    isCorrect: Boolean,
-    explanation: String,
-    buttonText: String,
-    onContinue: () -> Unit
-) {
-
-    Card(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-
-        Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-
-            Text(
-                text = if (isCorrect) {
-                    "Correct!"
-                } else {
-                    "Not quite."
-                },
-                style = MaterialTheme.typography.titleLarge
-            )
-
-            Text(
-                text = explanation
-            )
-
-            Button(
-                onClick = onContinue,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp)
-            ) {
-                Text(buttonText)
+                    },
+                    onContinue = {
+                        advanceLesson()
+                    }
+                )
             }
         }
     }
