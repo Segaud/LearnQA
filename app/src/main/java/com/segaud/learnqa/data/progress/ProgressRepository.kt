@@ -25,14 +25,40 @@ class ProgressRepository(
             preferences[Keys.TOTAL_XP] ?: 0
         }
 
-    suspend fun addXp(amount: Int) {
+    suspend fun recordLessonResult(
+        lessonId: String,
+        xpEarned: Int
+    ): Int {
+
+        var xpAwarded = 0
+
         context.dataStore.edit { preferences ->
 
-            val currentXp =
-                preferences[Keys.TOTAL_XP] ?: 0
+            val bestXpKey =
+                intPreferencesKey("lesson_${lessonId}_best_xp")
 
-            preferences[Keys.TOTAL_XP] =
-                currentXp + amount
+            val completedKey =
+                booleanPreferencesKey("lesson_${lessonId}_completed")
+
+            val previousBest =
+                preferences[bestXpKey] ?: 0
+
+            if (xpEarned > previousBest) {
+
+                xpAwarded = xpEarned - previousBest
+
+                preferences[bestXpKey] = xpEarned
+
+                val currentTotal =
+                    preferences[Keys.TOTAL_XP] ?: 0
+
+                preferences[Keys.TOTAL_XP] =
+                    currentTotal + xpAwarded
+            }
+
+            preferences[completedKey] = true
         }
+
+        return xpAwarded
     }
 }
