@@ -18,6 +18,7 @@ object SampleContent {
                 title = "Unit 1 — Introduction to Testing",
                 description = "Learn what software testing is and why it matters.",
                 lessons = listOf(
+
                     Lesson(
                         id = "what_is_software_testing",
                         title = "What is software testing?",
@@ -103,6 +104,91 @@ object SampleContent {
                                 ),
                                 correctOptionId = "18",
                                 explanation = "18 is the exact point where the application's behaviour should change."
+                            )
+                        )
+                    ),
+
+                    Lesson(
+                        id = "defects_failures_debugging",
+                        title = "Defects, failures and debugging",
+                        description = "Learn the difference between observing a problem and finding its cause.",
+                        exercises = listOf(
+
+                            Exercise.MultipleChoice(
+                                id = "observe_failure",
+                                prompt = """
+                                    Requirement:
+
+                                    Only users aged 18 or older may register.
+
+                                    The application allows a 17-year-old user to register.
+
+                                    What has the tester observed?
+                                """.trimIndent(),
+                                options = listOf(
+                                    AnswerOption(
+                                        id = "failure",
+                                        text = "A failure"
+                                    ),
+                                    AnswerOption(
+                                        id = "debugging",
+                                        text = "Debugging"
+                                    ),
+                                    AnswerOption(
+                                        id = "success",
+                                        text = "Expected behaviour"
+                                    )
+                                ),
+                                correctOptionId = "failure",
+                                explanation = "The actual behaviour does not match the expected behaviour, so the tester has observed a failure."
+                            ),
+
+                            Exercise.MultipleChoice(
+                                id = "what_is_debugging",
+                                prompt = """
+                                    Which statement best describes debugging?
+                                """.trimIndent(),
+                                options = listOf(
+                                    AnswerOption(
+                                        id = "execute_tests",
+                                        text = "Executing tests to look for unexpected behaviour"
+                                    ),
+                                    AnswerOption(
+                                        id = "find_cause",
+                                        text = "Finding and fixing the cause of a failure"
+                                    ),
+                                    AnswerOption(
+                                        id = "write_requirements",
+                                        text = "Writing requirements for a feature"
+                                    )
+                                ),
+                                correctOptionId = "find_cause",
+                                explanation = "Testing can reveal failures. Debugging investigates the underlying cause and is used to correct it."
+                            ),
+
+                            Exercise.MultipleChoice(
+                                id = "unexpected_result",
+                                prompt = """
+                                    A test produces an unexpected result.
+
+                                    What should the tester do next?
+                                """.trimIndent(),
+                                options = listOf(
+                                    AnswerOption(
+                                        id = "assume_bug",
+                                        text = "Immediately assume the developer introduced a defect"
+                                    ),
+                                    AnswerOption(
+                                        id = "investigate",
+                                        text = "Investigate, reproduce the result and gather evidence"
+                                    ),
+                                    AnswerOption(
+                                        id = "ignore",
+                                        text = "Ignore it unless another tester sees it"
+                                    )
+                                ),
+                                correctOptionId = "investigate",
+                                explanation = "An unexpected result should be investigated and reproduced before conclusions are made about its cause."
                             )
                         )
                     )

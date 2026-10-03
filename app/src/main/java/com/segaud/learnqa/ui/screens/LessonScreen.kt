@@ -24,6 +24,8 @@ import com.segaud.learnqa.data.progress.ProgressRepository
 import com.segaud.learnqa.model.Exercise
 import com.segaud.learnqa.model.Lesson
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @Composable
 fun LessonScreen(
@@ -62,6 +64,7 @@ fun LessonScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -114,6 +117,7 @@ fun LessonScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
