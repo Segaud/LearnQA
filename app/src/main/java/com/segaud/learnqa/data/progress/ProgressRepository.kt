@@ -103,4 +103,42 @@ class ProgressRepository(
             }
         }
     }
+    
+    fun completedLessonCount(
+        lessonIds: List<String>
+    ): Flow<Int> {
+
+        val completedKeys =
+            lessonIds.map { lessonId ->
+                booleanPreferencesKey(
+                    "lesson_${lessonId}_completed"
+                )
+            }
+
+        return context.dataStore.data.map { preferences ->
+
+            completedKeys.count { key ->
+                preferences[key] ?: false
+            }
+        }
+    }
+
+    fun lessonBestXpTotal(
+        lessonIds: List<String>
+    ): Flow<Int> {
+
+        val bestXpKeys =
+            lessonIds.map { lessonId ->
+                intPreferencesKey(
+                    "lesson_${lessonId}_best_xp"
+                )
+            }
+
+        return context.dataStore.data.map { preferences ->
+
+            bestXpKeys.sumOf { key ->
+                preferences[key] ?: 0
+            }
+        }
+    }
 }
