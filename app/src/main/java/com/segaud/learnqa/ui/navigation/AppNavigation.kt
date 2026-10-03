@@ -70,6 +70,108 @@ fun AppNavigation(
 
             SettingsScreen()
         }
+        
+        composable(
+            route = Routes.UNIT,
+            arguments = listOf(
+                navArgument("unitId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+
+            val unitId =
+                backStackEntry.arguments
+                    ?.getString("unitId")
+
+            val units =
+                SampleContent.qaFundamentals.units
+
+            val unitIndex =
+                units.indexOfFirst { unit ->
+                    unit.id == unitId
+                }
+
+            if (unitIndex >= 0) {
+
+                val unit =
+                    units[unitIndex]
+
+                val previousUnit =
+                    if (unitIndex == 0) {
+                        null
+                    } else {
+                        units[unitIndex - 1]
+                    }
+
+                UnitLessonsScreen(
+                    unit = unit,
+                    unitNumber = unitIndex + 1,
+                    previousUnit = previousUnit,
+                    progressRepository = progressRepository,
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onStartLesson = { lessonId ->
+
+                        navController.navigate(
+                            Routes.lesson(lessonId)
+                        )
+                    }
+                )
+            }
+        }
+        
+        composable(
+            route = Routes.UNIT,
+            arguments = listOf(
+                navArgument("unitId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+
+            val unitId =
+                backStackEntry.arguments
+                    ?.getString("unitId")
+
+            val units =
+                SampleContent.qaFundamentals.units
+
+            val unitIndex =
+                units.indexOfFirst { unit ->
+                    unit.id == unitId
+                }
+
+            if (unitIndex >= 0) {
+
+                val unit =
+                    units[unitIndex]
+
+                val previousUnit =
+                    if (unitIndex == 0) {
+                        null
+                    } else {
+                        units[unitIndex - 1]
+                    }
+
+                UnitLessonsScreen(
+                    unit = unit,
+                    unitNumber = unitIndex + 1,
+                    previousUnit = previousUnit,
+                    progressRepository = progressRepository,
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onStartLesson = { lessonId ->
+
+                        navController.navigate(
+                            Routes.lesson(lessonId)
+                        )
+                    }
+                )
+            }
+        }
 
         composable(
             route = Routes.LESSON,

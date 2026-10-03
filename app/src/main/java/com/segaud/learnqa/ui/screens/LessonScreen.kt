@@ -103,50 +103,129 @@ fun LessonScreen(
 
     if (lessonComplete) {
 
+        val maxXp =
+            lesson.exercises.size * 20
+
+        val scoreProgress =
+            if (maxXp == 0) {
+                0f
+            } else {
+                xpEarned.toFloat() / maxXp
+            }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(
+                    rememberScrollState()
+                )
                 .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement =
+                Arrangement.spacedBy(20.dp)
         ) {
 
             Text(
                 text = "Lesson complete!",
-                style = MaterialTheme.typography.headlineLarge
+                style =
+                    MaterialTheme.typography.headlineLarge
             )
 
             Text(
                 text = lesson.title,
-                style = MaterialTheme.typography.titleLarge
+                style =
+                    MaterialTheme.typography.titleLarge
             )
 
-            Text(
-                text = "${lesson.exercises.size} exercises completed"
-            )
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
 
-            Text(
-                text = "$correctAnswers of ${lesson.exercises.size} correct"
-            )
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement =
+                        Arrangement.spacedBy(12.dp)
+                ) {
 
-            Text(
-                text = "Score: $xpEarned XP",
-                style = MaterialTheme.typography.headlineMedium
-            )
+                    Text(
+                        text = "Your result",
+                        style =
+                            MaterialTheme.typography.titleLarge
+                    )
 
-            Text(
-                text = if ((xpAwarded ?: 0) > 0) {
-                    "+${xpAwarded ?: 0} XP added"
-                } else {
-                    "No additional XP earned"
+                    Text(
+                        text =
+                            "$correctAnswers / " +
+                                "${lesson.exercises.size} correct",
+                        style =
+                            MaterialTheme.typography.headlineMedium
+                    )
+
+                    LinearProgressIndicator(
+                        progress = {
+                            scoreProgress
+                        },
+                        modifier =
+                            Modifier.fillMaxWidth()
+                    )
+
+                    Text(
+                        text = "$xpEarned / $maxXp XP",
+                        style =
+                            MaterialTheme.typography.titleMedium
+                    )
                 }
-            )
+            }
+
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement =
+                        Arrangement.spacedBy(8.dp)
+                ) {
+
+                    Text(
+                        text = "XP earned",
+                        style =
+                            MaterialTheme.typography.titleLarge
+                    )
+
+                    if ((xpAwarded ?: 0) > 0) {
+
+                        Text(
+                            text = "+${xpAwarded ?: 0} XP",
+                            style =
+                                MaterialTheme.typography.headlineMedium
+                        )
+
+                        Text(
+                            text =
+                                "Your best score for this lesson improved."
+                        )
+
+                    } else {
+
+                        Text(
+                            text = "No new XP",
+                            style =
+                                MaterialTheme.typography.headlineSmall
+                        )
+
+                        Text(
+                            text =
+                                "You've already earned this score or better."
+                        )
+                    }
+                }
+            }
 
             Button(
                 onClick = onBack,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Continue")
+                Text("Back to lessons")
             }
         }
 
