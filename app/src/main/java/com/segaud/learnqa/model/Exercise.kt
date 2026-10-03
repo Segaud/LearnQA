@@ -1,6 +1,7 @@
 package com.segaud.learnqa.model
 
 sealed interface Exercise {
+
     val id: String
     val prompt: String
 
@@ -9,6 +10,14 @@ sealed interface Exercise {
         override val prompt: String,
         val options: List<AnswerOption>,
         val correctOptionId: String,
+        val explanation: String
+    ) : Exercise
+
+    data class MultiSelect(
+        override val id: String,
+        override val prompt: String,
+        val options: List<AnswerOption>,
+        val correctOptionIds: Set<String>,
         val explanation: String
     ) : Exercise
 }

@@ -191,6 +191,99 @@ object SampleContent {
                                 explanation = "An unexpected result should be investigated and reproduced before conclusions are made about its cause."
                             )
                         )
+                    ),
+                    
+                    Lesson(
+                        id = "why_we_test",
+                        title = "Why do we test software?",
+                        description = "Explore how testing reduces risk and provides information about software quality.",
+                        exercises = listOf(
+
+                            Exercise.MultipleChoice(
+                                id = "purpose_of_testing",
+                                prompt = """
+                                    What is one of the main purposes of software testing?
+                                """.trimIndent(),
+                                options = listOf(
+                                    AnswerOption(
+                                        id = "prove_perfect",
+                                        text = "Prove that the software has no defects"
+                                    ),
+                                    AnswerOption(
+                                        id = "provide_information",
+                                        text = "Provide information about software quality and risk"
+                                    ),
+                                    AnswerOption(
+                                        id = "replace_debugging",
+                                        text = "Replace the need for debugging"
+                                    )
+                                ),
+                                correctOptionId = "provide_information",
+                                explanation = "Testing provides information about quality and risk. It cannot prove that software contains no defects."
+                            ),
+
+                            Exercise.MultiSelect(
+                                id = "testing_benefits",
+                                prompt = """
+                                    Which of these are benefits of software testing?
+                                """.trimIndent(),
+                                options = listOf(
+                                    AnswerOption(
+                                        id = "find_defects",
+                                        text = "Finding defects before users encounter them"
+                                    ),
+                                    AnswerOption(
+                                        id = "reduce_risk",
+                                        text = "Reducing the risk of software failures"
+                                    ),
+                                    AnswerOption(
+                                        id = "quality_information",
+                                        text = "Providing information about product quality"
+                                    ),
+                                    AnswerOption(
+                                        id = "guarantee_perfection",
+                                        text = "Guaranteeing that the software is perfect"
+                                    )
+                                ),
+                                correctOptionIds = setOf(
+                                    "find_defects",
+                                    "reduce_risk",
+                                    "quality_information"
+                                ),
+                                explanation = "Testing can reveal defects, reduce risk and provide information about quality, but it cannot guarantee that software is defect-free."
+                            ),
+
+                            Exercise.MultiSelect(
+                                id = "tester_activities",
+                                prompt = """
+                                    Which activities could form part of a tester's work?
+                                """.trimIndent(),
+                                options = listOf(
+                                    AnswerOption(
+                                        id = "review_requirements",
+                                        text = "Reviewing requirements for problems or ambiguity"
+                                    ),
+                                    AnswerOption(
+                                        id = "execute_tests",
+                                        text = "Executing tests and comparing expected and actual results"
+                                    ),
+                                    AnswerOption(
+                                        id = "report_defects",
+                                        text = "Reporting defects with useful evidence"
+                                    ),
+                                    AnswerOption(
+                                        id = "guarantee_no_failures",
+                                        text = "Guaranteeing that no user will ever experience a failure"
+                                    )
+                                ),
+                                correctOptionIds = setOf(
+                                    "review_requirements",
+                                    "execute_tests",
+                                    "report_defects"
+                                ),
+                                explanation = "Testing includes activities such as reviewing requirements, executing tests and reporting defects. Testing cannot guarantee that failures will never occur."
+                            )
+                        )
                     )
                 )
             )

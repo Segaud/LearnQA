@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.LinearProgressIndicator
@@ -24,8 +26,6 @@ import com.segaud.learnqa.data.progress.ProgressRepository
 import com.segaud.learnqa.model.Exercise
 import com.segaud.learnqa.model.Lesson
 import kotlinx.coroutines.launch
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 
 @Composable
 fun LessonScreen(
@@ -40,6 +40,14 @@ fun LessonScreen(
 
     var selectedOptionId by rememberSaveable {
         mutableStateOf<String?>(null)
+    }
+
+    var selectedOptionIds by rememberSaveable {
+        mutableStateOf<List<String>>(emptyList())
+    }
+
+    var answerSubmitted by rememberSaveable {
+        mutableStateOf(false)
     }
 
     var correctAnswers by rememberSaveable {
@@ -58,7 +66,37 @@ fun LessonScreen(
 
     val xpEarned = correctAnswers * 20
 
-    // Lesson completion screen
+    fun resetAnswerState() {
+        selectedOptionId = null
+        selectedOptionIds = emptyList()
+        answerSubmitted = false
+    }
+
+    fun advanceLesson() {
+
+        if (
+            currentExerciseIndex <
+            lesson.exercises.lastIndex
+        ) {
+
+            currentExerciseIndex++
+            resetAnswerState()
+
+        } else {
+
+            coroutineScope.launch {
+
+                xpAwarded =
+                    progressRepository.recordLessonResult(
+                        lessonId = lesson.id,
+                        xpEarned = xpEarned
+                    )
+
+                lessonComplete = true
+            }
+        }
+    }
+
     if (lessonComplete) {
 
         Column(
@@ -111,9 +149,19 @@ fun LessonScreen(
         return
     }
 
-    val exercise = lesson.exercises[currentExerciseIndex]
+    val exercise =
+        lesson.exercises[currentExerciseIndex]
 
-    // Main lesson screen
+    val continueButtonText =
+        if (
+            currentExerciseIndex <
+            lesson.exercises.lastIndex
+        ) {
+            "Continue"
+        } else {
+            "Finish lesson"
+        }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -160,98 +208,174 @@ fun LessonScreen(
                     OutlinedButton(
                         onClick = {
 
-                            // Only the first answer counts towards the score
-                            if (selectedOptionId == null) {
+                            if (!answerSubmitted) {
 
-                                selectedOptionId = option.id
+                                selectedOptionId =
+                                    option.id
 
-                                if (option.id == exercise.correctOptionId) {
+                                answerSubmitted = true
+
+                                if (
+                                    option.id ==
+                                    exercise.correctOptionId
+                                ) {
                                     correctAnswers++
                                 }
                             }
                         },
-                        enabled = selectedOptionId == null,
+                        enabled = !answerSubmitted,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(option.text)
                     }
                 }
 
-                // Show feedback once an answer has been selected
-                if (selectedOptionId != null) {
+                if (answerSubmitted) {
 
                     val isCorrect =
-                        selectedOptionId == exercise.correctOptionId
+                        selectedOptionId ==
+                            exercise.correctOptionId
 
-                    Card(
+                    ExerciseFeedback(
+                        isCorrect = isCorrect,
+                        explanation = exercise.explanation,
+                        buttonText = continueButtonText,
+                        onContinue = {
+                            advanceLesson()
+                        }
+                    )
+                }
+            }
+
+            is Exercise.MultiSelect -> {
+
+                Text(
+                    text = exercise.prompt,
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Text(
+                    text = "Select all that apply.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                exercise.options.forEach { option ->
+
+                    val isSelected =
+                        option.id in selectedOptionIds
+
+                    OutlinedButton(
+                        onClick = {
+
+                            if (!answerSubmitted) {
+
+                                selectedOptionIds =
+                                    if (isSelected) {
+
+                                        selectedOptionIds -
+                                            option.id
+
+                                    } else {
+
+                                        selectedOptionIds +
+                                            option.id
+                                    }
+                            }
+                        },
+                        enabled = !answerSubmitted,
                         modifier = Modifier.fillMaxWidth()
                     ) {
 
-                        Column(
-                            modifier = Modifier.padding(20.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-
-                            Text(
-                                text = if (isCorrect) {
-                                    "Correct!"
-                                } else {
-                                    "Not quite."
-                                },
-                                style = MaterialTheme.typography.titleLarge
-                            )
-
-                            Text(
-                                text = exercise.explanation
-                            )
-
-                            Button(
-                                onClick = {
-
-                                    // Move to the next exercise
-                                    if (
-                                        currentExerciseIndex <
-                                        lesson.exercises.lastIndex
-                                    ) {
-
-                                        currentExerciseIndex++
-                                        selectedOptionId = null
-
-                                    } else {
-
-                                        // Final exercise:
-                                        // save the result before completing
-                                        coroutineScope.launch {
-
-                                            xpAwarded =
-                                                progressRepository.recordLessonResult(
-                                                    lessonId = lesson.id,
-                                                    xpEarned = xpEarned
-                                                )
-
-                                            lessonComplete = true
-                                        }
-                                    }
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 16.dp)
-                            ) {
-
-                                Text(
-                                    if (
-                                        currentExerciseIndex <
-                                        lesson.exercises.lastIndex
-                                    ) {
-                                        "Continue"
-                                    } else {
-                                        "Finish lesson"
-                                    }
-                                )
+                        Text(
+                            text = if (isSelected) {
+                                "✓ ${option.text}"
+                            } else {
+                                option.text
                             }
-                        }
+                        )
                     }
                 }
+
+                if (!answerSubmitted) {
+
+                    Button(
+                        onClick = {
+
+                            answerSubmitted = true
+
+                            val isCorrect =
+                                selectedOptionIds.toSet() ==
+                                    exercise.correctOptionIds
+
+                            if (isCorrect) {
+                                correctAnswers++
+                            }
+                        },
+                        enabled =
+                            selectedOptionIds.isNotEmpty(),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Check answer")
+                    }
+                }
+
+                if (answerSubmitted) {
+
+                    val isCorrect =
+                        selectedOptionIds.toSet() ==
+                            exercise.correctOptionIds
+
+                    ExerciseFeedback(
+                        isCorrect = isCorrect,
+                        explanation = exercise.explanation,
+                        buttonText = continueButtonText,
+                        onContinue = {
+                            advanceLesson()
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExerciseFeedback(
+    isCorrect: Boolean,
+    explanation: String,
+    buttonText: String,
+    onContinue: () -> Unit
+) {
+
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+
+            Text(
+                text = if (isCorrect) {
+                    "Correct!"
+                } else {
+                    "Not quite."
+                },
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            Text(
+                text = explanation
+            )
+
+            Button(
+                onClick = onContinue,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp)
+            ) {
+                Text(buttonText)
             }
         }
     }
