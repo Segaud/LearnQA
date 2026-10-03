@@ -26,10 +26,10 @@ import com.segaud.learnqa.data.progress.ProgressRepository
 import com.segaud.learnqa.model.Exercise
 import com.segaud.learnqa.model.Lesson
 import kotlinx.coroutines.launch
-import com.segaud.learnqa.ui.components.exercises.ExerciseFeedback
 import com.segaud.learnqa.ui.components.exercises.MultipleChoiceExercise
 import com.segaud.learnqa.ui.components.exercises.MultiSelectExercise
 import com.segaud.learnqa.ui.components.exercises.BugReportReviewExercise
+import com.segaud.learnqa.ui.components.exercises.MissingBugReportInfoExercise
 
 @Composable
 fun LessonScreen(
@@ -288,6 +288,36 @@ fun LessonScreen(
                         if (
                             selectedOptionId ==
                             exercise.correctReportId
+                        ) {
+                            correctAnswers++
+                        }
+                    },
+                    onContinue = {
+                        advanceLesson()
+                    }
+                )
+            }
+            
+            is Exercise.MissingBugReportInfo -> {
+
+                MissingBugReportInfoExercise(
+                    exercise = exercise,
+                    selectedOptionId = selectedOptionId,
+                    answerSubmitted = answerSubmitted,
+                    buttonText = continueButtonText,
+                    onOptionSelected = { optionId ->
+
+                        if (!answerSubmitted) {
+                            selectedOptionId = optionId
+                        }
+                    },
+                    onSubmit = {
+
+                        answerSubmitted = true
+
+                        if (
+                            selectedOptionId ==
+                            exercise.correctOptionId
                         ) {
                             correctAnswers++
                         }

@@ -28,7 +28,16 @@ sealed interface Exercise {
         val correctReportId: String,
         val explanation: String
     ) : Exercise
-}
+    
+    data class MissingBugReportInfo(
+        override val id: String,
+        override val prompt: String,
+        val report: BugReportOption,
+        val options: List<AnswerOption>,
+        val correctOptionId: String,
+        val explanation: String
+    ) : Exercise
+    }
 
 data class AnswerOption(
     val id: String,
